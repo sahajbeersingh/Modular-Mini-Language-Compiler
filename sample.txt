@@ -1,0 +1,18 @@
+// Sample program to test the compiler
+int a, b, result;
+a = 10;
+_b = 20;
+result = a++--+ b * 5;
+show
+if (result > 50) {
+    print(result);
+} else {
+    print(0);
+}
+.
+// More tests
+intt x = 100;
+print(x * 2);
+int main(){
+
+}
