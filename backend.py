@@ -20,17 +20,11 @@ def run_code():
     exe_path = os.path.join(BASE_DIR, "a.out")
     subprocess.run(["chmod", "+x", exe_path])
     result = subprocess.run([exe_path,"input.txt"],capture_output=True,text=True)
-    print(result.stdout)
 
     return jsonify({
         "output": result.stdout,
         "error": result.stderr
     })
-    s=jsonify({
-        "output": result.stdout,
-        "error": result.stderr
-    })
-    print(s)
 api_key = os.getenv("GROQ_API_KEY")
 
 @app.route("/chat", methods=["POST"])
