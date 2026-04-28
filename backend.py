@@ -16,7 +16,6 @@ def run_code():
     with open("input.txt", "w", encoding="utf-8") as f:
         f.write(code)
 
-    subprocess.run(["g++", "main.cpp", "parser.cpp","semantic.cpp, "-o", "compiler"])
     result = subprocess.run(["./compiler", "input.txt"],
                         capture_output=True, text=True,encoding="utf-8",errors="ignore")
 
