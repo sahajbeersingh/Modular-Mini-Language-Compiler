@@ -30,7 +30,7 @@ private:
     }
 
     void skipWhitespace() {
-        while (current() == ' ' || current() == '\t' || current() == '\n') {
+        while (current() == ' ' || current() == '\t' || current() == '\n' || current() == '\r') {
             advance();
         }
     }
