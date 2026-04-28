@@ -1,0 +1,504 @@
+<!doctype html>
+<html>
+  <head>
+    <title>ModuLang Compiler IDE</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Fira+Code&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+        flowchart: {
+          nodeSpacing: 15,
+          rankSpacing: 150, 
+          curve: "linear",
+        },
+      });
+    </script>
+
+    <style>
+      :root {
+        --bg-main: #171a1f;
+        --bg-panel: #171a1f;
+        --bg-soft: #2a323fac;
+        --border: #1f2937;
+
+        --text-primary: #e5e7eb;
+        --text-secondary: #9ca3af; 
+
+        --accent: #3b82f6; 
+        --accent-hover: #2563eb;
+
+        --success: #10b981;
+      }
+      body {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-main);
+        color: var(--text-primary);
+      }
+
+      header {
+        background: #020617;
+        padding: 14px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        border-bottom: 1px solid #1e293b;
+      }
+
+      .main {
+        display: flex;
+        height: 80vh;
+      }
+
+      .editor {
+        width: 40%;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        background: #020617;
+      }
+
+      textarea {
+        flex: 1;
+        background: #020617;
+        color: #38bdf8;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 10px;
+      }
+
+      button {
+        margin-top: 10px;
+        padding: 12px;
+        background: #22c55e;
+        border: none;
+        border-radius: 6px;
+        color: white;
+        cursor: pointer;
+      }
+
+      .panel {
+        width: 60%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tabs {
+        display: flex;
+        background: #020617;
+      }
+
+      .tab {
+        padding: 10px;
+        cursor: pointer;
+        color: #94a3b8;
+      }
+
+      .tab.active {
+        color: #22c55e;
+      }
+
+      .content {
+        display: none;
+        padding: 10px;
+        overflow: auto;
+      }
+
+      .content.active {
+        display: block;
+      }
+
+      pre {
+        background: #020617;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #1e293b;
+        font-size: 13px;
+      }
+
+      #astGraphSection {
+        height: 70vh;
+        border-top: 1px solid #1e293b;
+        padding: 10px;
+      }
+
+      #astDiagram {
+        height: 100%;
+        overflow: auto;
+        position: relative;
+      }
+      #astDiagram svg {
+        max-width: 800px;
+        margin: auto;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      #chatInput {
+        flex: 1;
+        padding: 10px;
+        background: #020617;
+        border: 1px solid #1e293b;
+        color: white;
+      }
+
+      #chatToggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: #22c55e;
+        color: white;
+        font-size: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      }
+
+      #chatContainer {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 900px;
+        height: 500px;
+        background: #020617;
+        border: 1px solid #1e293b;
+        border-radius: 10px;
+        display: none;
+        flex-direction: column;
+      }
+
+      #chatHeader {
+        padding: 10px;
+        background: #22c55e;
+        color: black;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      #chatBox {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+        font-size: 13px;
+      }
+
+      /* INPUT AREA */
+      #chatInputArea {
+        display: flex;
+      }
+
+      #chatInput {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        background: #020617;
+        color: white;
+      }
+
+      #chatInputArea button {
+        padding: 8px;
+        background: #22c55e;
+        border: none;
+        cursor: pointer;
+      }
+
+      .user-msg {
+        font-family: "Inter", sans-serif;
+        text-align: right;
+        margin: 8px 0;
+        color: #22c55e;
+      }
+
+      .bot-msg {
+        font-family: "Inter", sans-serif;
+        text-align: left;
+        margin: 8px 0;
+        color: #e2e8f0;
+        background: #0f172a;
+        padding: 8px;
+        border-radius: 6px;
+      }
+
+      pre {
+        font-family: "Fira Code", monospace;
+        background: #020617;
+        padding: 8px;
+        border-radius: 6px;
+        overflow-x: auto;
+        color: #38bdf8;
+        font-size: 12px;
+      }
+      .editor,
+      .panel,
+      header {
+        background: var(--bg-panel);
+        border-color: var(--border);
+      }
+      textarea,
+      #chatInput {
+        background: var(--bg-soft);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+      }
+      button {
+        background: var(--accent);
+        color: white;
+        border-radius: 6px;
+      }
+
+      button:hover {
+        background: var(--accent-hover);
+      }
+      .tab {
+        color: var(--text-secondary);
+      }
+
+      .tab.active {
+        color: var(--accent);
+      }
+      .bot-msg {
+        background: var(--bg-soft);
+        color: var(--text-primary);
+      }
+
+      .user-msg {
+        color: var(--accent);
+      }
+      #chatToggle {
+        background: var(--accent);
+      }
+      pre {
+        background: #020617;
+        border: 1px solid var(--border);
+        color: #93c5fd;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>ModuLang Compiler IDE</header>
+
+    <div class="main">
+      <div class="editor">
+        <textarea id="code">
+var a, b;
+a = 5;
+b = 3;
+
+check (a > b) {
+    show a;
+} otherwise {
+    show b;
+}
+        </textarea>
+        <button onclick="runAll()">Run</button>
+      </div>
+
+      <div class="panel">
+        <div class="tabs">
+          <div class="tab active" onclick="openTab(event, 'tokens')">
+            Tokens
+          </div>
+          <div class="tab" onclick="openTab(event, 'ast')">AST</div>
+          <div class="tab" onclick="openTab(event, 'semantic')">Semantic</div>
+        </div>
+
+        <div id="tokens" class="content active">
+          <pre id="tokensText"></pre>
+        </div>
+
+        <div id="ast" class="content">
+          <pre id="astText"></pre>
+        </div>
+
+        <div id="semantic" class="content">
+          <pre id="semanticText"></pre>
+        </div>
+      </div>
+    </div>
+
+    <div id="astGraphSection">
+      <h3>🌳 AST Visualization</h3>
+      <div id="astDiagram"></div>
+    </div>
+
+    <script>
+      function openTab(evt, name) {
+        let tabs = document.getElementsByClassName("tab");
+        let contents = document.getElementsByClassName("content");
+
+        for (let t of tabs) t.classList.remove("active");
+        for (let c of contents) c.classList.remove("active");
+
+        evt.currentTarget.classList.add("active");
+        document.getElementById(name).classList.add("active");
+      }
+
+      function runAll() {
+        document.getElementById("tokensText").innerText = "Running...";
+        document.getElementById("semanticText").innerText = "";
+        document.getElementById("astText").innerText = "";
+
+        fetch("/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            code: document.getElementById("code").value,
+          }),
+        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Server error");
+            }
+            return res.json();
+          })
+          .then((data) => splitOutput(data.output));
+      }
+
+      function splitOutput(output) {
+        let sections = { tokens: "", ast: "", semantic: "" };
+        let current = "";
+
+        output.split("\n").forEach((line) => {
+          if (line.includes("- TOKENS -")) {
+            current = "tokens";
+            return;
+          }
+          if (line.includes("- AST -")) {
+            current = "ast";
+            return;
+          }
+          if (line.includes("SEMANTIC ANALYSIS")) {
+            current = "semantic";
+            return;
+          }
+
+          if (current) sections[current] += line + "\n";
+        });
+
+        document.getElementById("tokensText").innerText = sections.tokens;
+        document.getElementById("semanticText").innerText = sections.semantic;
+        document.getElementById("astText").innerText = sections.ast;
+
+        // GRAPH
+        let graph = generateASTDiagram(sections.ast);
+        document.getElementById("astDiagram").innerHTML =
+          `<div class="mermaid">${graph}</div>`;
+
+        mermaid.init(undefined, document.querySelectorAll(".mermaid"));
+      }
+
+      function generateASTDiagram(astText) {
+        let lines = astText.split("\n").filter((l) => l.includes("["));
+        let graph = "graph TB;\n";
+
+        let stack = [];
+        let id = 0;
+
+        lines.forEach((line) => {
+          let indent = line.search(/\|__/);
+          if (indent === -1) indent = line.search(/\|--/);
+
+          let depth = Math.floor(indent / 3);
+
+          let match = line.match(/\[(.*?)\]/);
+          if (!match) return;
+
+          let label = match[1];
+          let nodeId = "N" + id++;
+
+          graph += `${nodeId}["${label}"];\n`;
+
+          while (stack.length > depth) {
+            stack.pop();
+          }
+
+          if (stack.length > 0) {
+            graph += `${stack[stack.length - 1]} --> ${nodeId};\n`;
+          }
+
+          stack.push(nodeId);
+        });
+
+        return graph;
+      }
+      function sendMessage() {
+        let input = document.getElementById("chatInput");
+        let msg = input.value;
+
+        if (!msg) return;
+
+        let chatBox = document.getElementById("chatBox");
+
+        chatBox.innerHTML += `<div class="user-msg">${msg}</div>`;
+       
+        input.value = "";
+
+        fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message:
+              msg + "\n\nCode:\n" + document.getElementById("code").value,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            let reply = data.reply;
+
+            function formatMessage(text) {
+              text = text.replace(/```([\s\S]*?)```/g, "<pre>$1</pre>");
+              text = text.replace(/\n/g, "<br>");
+
+              return text;
+            }
+
+            chatBox.innerHTML += `<div class="bot-msg">${renderMarkdown(reply)}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+          });
+      }
+
+      function toggleChat() {
+        let box = document.getElementById("chatContainer");
+
+        if (box.style.display === "flex") {
+          box.style.display = "none";
+        } else {
+          box.style.display = "flex";
+        }
+      }
+      function renderMarkdown(text){
+        return DOMPurify.sanitize(marked.parse(text));
+      }
+    </script>
+
+    <div id="chatToggle" onclick="toggleChat()">💬</div>
+
+    <div id="chatContainer">
+      <div id="chatHeader">
+        Compiler Assistant
+        <span onclick="toggleChat()" style="cursor: pointer">✖</span>
+      </div>
+
+      <div id="chatBox"></div>
+
+      <div id="chatInputArea">
+        <input id="chatInput" placeholder="Ask something..." />
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </body>
+</html>

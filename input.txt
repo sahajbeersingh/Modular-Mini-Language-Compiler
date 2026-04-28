@@ -1,0 +1,10 @@
+var a, b;
+a = 5;
+b = 3;
+
+check (a > b) {
+    show a;
+} otherwise {
+    show b;
+}
+        
