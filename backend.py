@@ -17,7 +17,7 @@ def run_code():
         f.write(code)
 
 
-    result = subprocess.run(["a.exe", "input.txt"],
+    result = subprocess.run(["./a.out", "input.txt"],
                         capture_output=True, text=True,encoding="utf-8",errors="ignore")
 
     return jsonify({
