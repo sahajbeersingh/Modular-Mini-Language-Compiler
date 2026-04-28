@@ -3,43 +3,48 @@
 
 #include "token.h"
 #include <vector>
-#include <memory>
 #include <string>
 
 struct ASTNode {
-    virtual ~ASTNode() {}
-    virtual std::string toString() = 0;
+    std::string type;
+    std::string value;
+    ASTNode* left;
+    ASTNode* right;
+
+    ASTNode(std::string t, std::string v,
+            ASTNode* l = nullptr, ASTNode* r = nullptr)
+        : type(t), value(v), left(l), right(r) {}
 };
 
-struct Program : ASTNode {
-    std::vector<std::unique_ptr<ASTNode>> statements;
-    std::string toString() override { return "Program"; }
-};
+class Parser {
+private:
+    std::vector<Token> tokens;
+    int pos;
 
-struct Declaration : ASTNode {
-    std::string varName;
-    Declaration(std::string name) : varName(name) {}
-    std::string toString() override { return "Declare: " + varName; }
-};
+    Token current();
+    void  advance();
+    bool  match(TokenType type);
+    void  expect(TokenType type, std::string errorMsg);
 
-struct Assignment : ASTNode {
-    std::string varName;
-    std::string expr;
-    Assignment(std::string name, std::string e) : varName(name), expr(e) {}
-    std::string toString() override { return varName + " = " + expr; }
-};
+    ASTNode* parseProgram();
+    ASTNode* parseStatement();
+    ASTNode* parseVarDeclaration();
+    ASTNode* parseAssignment();
+    ASTNode* parseShowStatement();
+    ASTNode* parseCheckStatement();
+    ASTNode* parseWhileStatement();
+    ASTNode* parseForStatement();
+    ASTNode* parseBlock();
 
-struct Print : ASTNode {
-    std::string expr;
-    Print(std::string e) : expr(e) {}
-    std::string toString() override { return "Print: " + expr; }
-};
+    ASTNode* parseExpression();
+    ASTNode* parseComparison();
+    ASTNode* parseAdditive();
+    ASTNode* parseTerm();
+    ASTNode* parseFactor();
 
-struct IfStatement : ASTNode {
-    std::string condition;
-    std::vector<std::unique_ptr<ASTNode>> thenBlock;
-    std::vector<std::unique_ptr<ASTNode>> elseBlock;
-    std::string toString() override { return "If: " + condition; }
+public:
+    explicit Parser(std::vector<Token> tokenList);
+    ASTNode* parse();
 };
 
 #endif
