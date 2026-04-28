@@ -16,6 +16,8 @@ def run_code():
     with open("input.txt", "w", encoding="utf-8") as f:
         f.write(code)
 
+    subprocess.run(["chmod", "+x", "compiler"])
+
     result = subprocess.run(["./compiler", "input.txt"],
                         capture_output=True, text=True,encoding="utf-8",errors="ignore")
 
