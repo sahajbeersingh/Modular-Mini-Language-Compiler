@@ -1,18 +1,25 @@
-// Sample program to test the compiler
-int a, b, result;
-a = 10;
-_b = 20;
-result = a++--+ b * 5;
-show
-if (result > 50) {
-    print(result);
-} else {
-    print(0);
-}
-.
-// More tests
-intt x = 100;
-print(x * 2);
-int main(){
+var a, b, c,d;
 
+a = 10;
+b = 3;
+c = 0;
+
+check (a > b) {
+    show a;
+} otherwise {
+    show b;
+}
+
+check (a > 5) {
+    check (b < 5) {
+        show b;
+    }
+}
+
+while (b < 10) {
+    b = b + 1;
+}
+
+for (c = 0; c < 5; c = c + 1) {
+    show c;
 }
