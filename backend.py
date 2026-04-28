@@ -1,4 +1,6 @@
 from flask import Flask, request, jsonify
+from flask import send_file
+
 from dotenv import load_dotenv
 load_dotenv()
 import subprocess
@@ -64,6 +66,13 @@ def chat():
 
 @app.route("/")
 def home():
-    return open("index.html", encoding="utf-8").read()
+    return send_file("index.html")
+    # return open("index.html", encoding="utf-8").read()
 
-app.run(debug=True)
+
+
+    
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
