@@ -16,9 +16,10 @@ def run_code():
     with open("input.txt", "w", encoding="utf-8") as f:
         f.write(code)
 
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    exe_path = os.path.join(BASE_DIR, "a.out")
     subprocess.run(["chmod", "+x", exe_path])
-    result = subprocess.run(["./a.out", "input.txt"],
-                        capture_output=True, text=True,encoding="utf-8",errors="ignore")
+    result = subprocess.run([exe_path, input_path],capture_output=True,text=True)
 
     return jsonify({
         "output": result.stdout,
