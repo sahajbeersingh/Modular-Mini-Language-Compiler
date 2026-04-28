@@ -40,43 +40,42 @@ public:
 
     std::vector<Token> tokenize() {
         tokens.clear();
-        
+
         while (pos < input.length()) {
             skipWhitespace();
             if (pos >= input.length()) break;
-            
+
             char c = current();
             int startLine = line;
             int startCol = col;
-            
-            // Comments
+
             if (c == '/' && pos + 1 < input.length() && input[pos + 1] == '/') {
                 while (current() != '\n' && pos < input.length()) {
                     advance();
                 }
                 continue;
             }
-            
-            // Identifiers and keywords
+
             if (isalpha(c) || c == '_') {
                 std::string value;
                 while (isalnum(current()) || current() == '_') {
                     value += current();
                     advance();
                 }
-                
+
                 TokenType type;
-                if (value == "int") type = TOKEN_INT;
-                else if (value == "if") type = TOKEN_IF;
-                else if (value == "else") type = TOKEN_ELSE;
-                else if (value == "print") type = TOKEN_PRINT;
+                if (value == "var") type = TOKEN_VAR;
+                else if (value == "check") type = TOKEN_CHECK;
+                else if (value == "otherwise") type = TOKEN_OTHERWISE;
+                else if (value == "show") type = TOKEN_SHOW;
+                else if (value == "while") type = TOKEN_WHILE;
+                else if (value == "for") type = TOKEN_FOR;
                 else type = TOKEN_IDENTIFIER;
-                
+
                 tokens.push_back(Token(type, value, startLine, startCol));
                 continue;
             }
-            
-            // Numbers
+
             if (isdigit(c)) {
                 std::string value;
                 while (isdigit(current())) {
@@ -86,10 +85,9 @@ public:
                 tokens.push_back(Token(TOKEN_NUMBER, value, startLine, startCol));
                 continue;
             }
-            
 
             advance();
-            
+
             if (c == '=') {
                 if (current() == '=') {
                     advance();
@@ -136,7 +134,7 @@ public:
                 tokens.push_back(Token(TOKEN_ERROR, std::string(1, c), startLine, startCol));
             }
         }
-        
+
         tokens.push_back(Token(TOKEN_EOF, "", line, col));
         return tokens;
     }
