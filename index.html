@@ -365,7 +365,10 @@ check (a > b) {
             }
             return res.json();
           })
-          .then((data) => splitOutput(data.output));
+          .then((data) => {
+            const fullOutput = data.output + "\n" + data.error;
+            splitOutput(fullOutput);
+          });
       }
 
       function splitOutput(output) {
