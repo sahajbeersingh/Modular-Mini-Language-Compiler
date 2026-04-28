@@ -16,13 +16,9 @@ def run_code():
     with open("input.txt", "w", encoding="utf-8") as f:
         f.write(code)
 
-    result = subprocess.run(
-        ["a.exe", "input.txt"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="ignore"
-    )
+    subprocess.run(["g++", "main.cpp", "parser.cpp","semantic.cpp, "-o", "compiler"])
+    result = subprocess.run(["./compiler", "input.txt"],
+                        capture_output=True, text=True,encoding="utf-8",errors="ignore")
 
     return jsonify({
         "output": result.stdout,
