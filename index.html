@@ -314,6 +314,7 @@ check (a > b) {
           </div>
           <div class="tab" onclick="openTab(event, 'ast')">AST</div>
           <div class="tab" onclick="openTab(event, 'semantic')">Semantic</div>
+          <div class="tab" onclick="openTab(event, 'ir')">IR</div>
         </div>
 
         <div id="tokens" class="content active">
@@ -326,6 +327,9 @@ check (a > b) {
 
         <div id="semantic" class="content">
           <pre id="semanticText"></pre>
+        </div>
+        <div id="ir" class="content">
+          <pre id="irText"></pre>
         </div>
       </div>
     </div>
@@ -365,14 +369,11 @@ check (a > b) {
             }
             return res.json();
           })
-          .then((data) => {
-            const fullOutput = data.output + "\n" + data.error;
-            splitOutput(fullOutput);
-          });
+          .then((data) => splitOutput(data.output));
       }
 
       function splitOutput(output) {
-        let sections = { tokens: "", ast: "", semantic: "" };
+        let sections = { tokens: "", ast: "", semantic: "", ir: "" };
         let current = "";
 
         output.split("\n").forEach((line) => {
@@ -388,6 +389,10 @@ check (a > b) {
             current = "semantic";
             return;
           }
+          if (line.includes("INTERMEDIATE CODE")) {
+            current = "ir";
+            return;
+          }
 
           if (current) sections[current] += line + "\n";
         });
@@ -395,6 +400,7 @@ check (a > b) {
         document.getElementById("tokensText").innerText = sections.tokens;
         document.getElementById("semanticText").innerText = sections.semantic;
         document.getElementById("astText").innerText = sections.ast;
+        document.getElementById("irText").innerText = sections.ir;
 
         // GRAPH
         let graph = generateASTDiagram(sections.ast);
