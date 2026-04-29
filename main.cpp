@@ -1,6 +1,7 @@
 #include "lexer.h"
 #include "semantic.h"
 #include "parser.h"
+#include "ir.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -28,6 +29,8 @@ void printAST(ASTNode* node, const std::string& prefix = "", bool isLast = true)
     if (isStatementChain) {
         if (node->left)  printAST(node->left,  childPrefix, true);
         if (node->right) printAST(node->right, prefix, isLast);  
+
+        
     } else {
         bool hasRight = (node->right != nullptr);
         if (node->left)  printAST(node->left,  childPrefix, !hasRight);
@@ -84,11 +87,17 @@ int main(int argc, char* argv[]) {
         sa.analyze(root);
         sa.printSymbolTable();
         sa.checkUnused();
+
+        cout << "\n- INTERMEDIATE CODE -\n";
+        IRGenerator ir;
+        vector<std::string> tac = ir.generate(root);
+        for (const auto& line : tac) {
+            std::cout << line << "\n";
+        }
     } catch (const std::exception& e) {
         std::cerr << "Parse error: " << e.what() << "\n";
         return 1;
     }
-
     std::cout << "\nCOMPILATION SUCCESSFUL.\n";
     return 0;
 }
